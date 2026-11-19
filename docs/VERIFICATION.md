@@ -21,4 +21,6 @@ Verified on 19 November 2026 with Python 3.12.14. This records development evide
 - The test container reported an unwritable pytest cache directory; application tests passed. Test-image cache configuration was subsequently set to /tmp to prevent this warning on future builds; that Dockerfile-only adjustment has not been rebuilt after the disk-space failure.
 - No throughput, production latency, FCR improvement, operational TAT improvement, or real customer outcome has been measured.
 - Shared role keys are a demonstration mechanism, not individual bank employee authentication.
-- GitHub repository creation was denied by the connected app (`Resource not accessible by integration (createRepository)`). Remote publishing awaits an empty repository owned by the user. CI is configured but has not run remotely.
+- GitHub repository creation was initially denied by the connected app (`Resource not accessible by integration (createRepository)`). The user created the repository, and milestone commit `6d91d86` was pushed to `main`.
+- [GitHub Actions run 44482091040](https://github.com/krithic616/resolvedesk/actions/runs/44482091040) passed: lint, format, PostgreSQL migrations/schema comparison, all **21 tests**, and compilation.
+- The user-created repository is public; generated local keys, database files, and the virtual environment are ignored. All tracked files were checked for the actual generated local credentials; none were present.
