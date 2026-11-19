@@ -38,3 +38,17 @@ Verified locally on 19 November 2026:
 - Ruff lint/format, application compilation, and Alembic schema comparison passed.
 
 [GitHub Actions run 44508785024](https://github.com/krithic616/resolvedesk/actions/runs/44508785024) passed on PostgreSQL: **42 tests passed**, including simultaneous duplicate intake and competing workflow edits. Remote lint, format, migrations/schema comparison, and compilation also passed. Full multi-container startup remains unverified due to the earlier cloud disk-space limitation. No banking performance metrics or real customer outcomes are claimed.
+
+# Milestone 3 verification
+
+Local verification on 19 November 2026:
+
+- **87 passed, 3 skipped** on SQLite. Skips require PostgreSQL: duplicate intake, simultaneous case edits, and overlapping scanners.
+- Calendar tests cover before/after office hours, exact cutoff, sub-minute boundaries, weekends, configured holidays, working-time elapsed calculations, and invalid policies.
+- Service tests cover immutable policy snapshots, category targets, reassignment without deadline reset, first-response simulation, NFCR ownership/review/rescheduling/completion, legacy activation, reopening cycles, pause rules, permissions, stale versions, and cross-case IDs.
+- Worker tests cover warning thresholds, strict overdue boundaries, deduplication across repeated scans/restarts, late completion recovery, old breaches after rescheduling during downtime, atomic alert/audit rollback, and sanitized failure logs.
+- Streamlit AppTest creates and completes an NFCR task through the API, alongside the existing intake and answer/resolution scenarios.
+- The migration preserves an existing milestone-1 case through all upgrades and leaves legacy service clocks and alerts empty.
+- Ruff lint/format, compilation, Alembic schema comparison, and the real `python -m app.worker --once` command passed. The one-shot command returned zero new alerts on the empty local cloud dataset.
+
+Remote PostgreSQL results will be recorded after CI. Full multi-container startup remains unverified because of the earlier cloud disk-space limitation. No production latency, throughput, or banking outcome metric is claimed.

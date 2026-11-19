@@ -5,11 +5,12 @@ import os
 import httpx
 import streamlit as st
 
+from ui.service_ui import render_operations, render_policies, render_service
 from ui.workflow_ui import render_workflow
 
 st.set_page_config(page_title="ResolveDesk", page_icon="✉", layout="wide")
 st.title("ResolveDesk")
-st.caption("Banking email resolution workbench • Synthetic data only • Milestone 2")
+st.caption("Banking email resolution workbench • Synthetic data only • Milestone 3")
 api_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 key = st.sidebar.text_input("Demo API key", type="password")
 st.sidebar.caption(
@@ -49,7 +50,9 @@ if not identity:
 notice = st.session_state.pop("workflow_notice", None)
 if notice:
     st.success(notice)
-queue, intake = st.tabs(["Case queue", "Create case"])
+queue, intake, operations, policies = st.tabs(
+    ["Case queue", "Create case", "Deadline alerts", "Service policies"]
+)
 with intake:
     with st.form("intake", clear_on_submit=False):
         source = st.text_input("Unique email message ID", placeholder="demo-email-001")
@@ -96,8 +99,14 @@ with queue:
                 st.markdown("**Query checklist**")
                 for query in case["queries"]:
                     st.write(f"• {query['question']}")
+                render_service(case, request, identity["role"])
                 render_workflow(case, request, identity["role"])
                 st.markdown("**Audit history**")
                 events = request("GET", f"/cases/{selected}/audit")
                 if events is not None:
                     st.dataframe(events, hide_index=True)
+
+with operations:
+    render_operations(request, identity["role"])
+with policies:
+    render_policies(request, identity["role"])

@@ -88,9 +88,26 @@ def test_dependencies_and_wait_states_block_resolution(client, payload):
     assert r.status_code == 200
     c = r.json()
     post(client, c, "resolve", resolution_note="Not complete", expected=409)
+    c = post(
+        client,
+        c,
+        "follow-ups",
+        expected=201,
+        unit="charges",
+        owner="demo-charges-team",
+        description="Investigate charge",
+        next_action="Contact charges team",
+    )
+    task = client.get(f"/cases/{c['id']}/service", headers=auth()).json()["followups"][0]
     c = post(client, c, "transition", target="awaiting_business_unit", reason="Unit input required")
     post(client, c, "resolve", resolution_note="Still waiting", expected=409)
     c = answer_all(client, c)
+    c = post(
+        client,
+        c,
+        f"follow-ups/{task['id']}/complete",
+        completion_note="Synthetic unit input received",
+    )
     c = post(client, c, "transition", target="in_progress", reason="Unit input received")
     assert (
         post(client, c, "resolve", resolution_note="Verified synthetic answers")["status"]

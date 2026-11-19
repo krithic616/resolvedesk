@@ -27,7 +27,12 @@ TRANSITIONS = {
 def find_case(case_id: str, session: Session):
     case = session.scalar(
         select(Case)
-        .options(selectinload(Case.queries), selectinload(Case.commitments))
+        .options(
+            selectinload(Case.queries),
+            selectinload(Case.commitments),
+            selectinload(Case.clocks),
+            selectinload(Case.followups),
+        )
         .where(Case.id == case_id)
     )
     if case is None:
@@ -88,6 +93,8 @@ def resolve(case, note, role):
         raise HTTPException(409, "Answer every customer question with an evidence reference first")
     if any(c.completed_at is None for c in case.commitments):
         raise HTTPException(409, "Complete all customer commitments before resolution")
+    if any(task.completed_at is None for task in case.followups):
+        raise HTTPException(409, "Complete all NFCR follow-up tasks before resolution")
     case.status = "resolved"
     case.resolution_note = note
     case.resolved_at = utc_now()

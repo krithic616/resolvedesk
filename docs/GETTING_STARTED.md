@@ -86,7 +86,7 @@ python -m ruff format --check .
 python -m alembic check
 ```
 
-The two PostgreSQL concurrency tests are skipped in SQLite mode. Once this repository is published, check GitHub Actions for its PostgreSQL run. You can also run `docker compose --profile test run --build --rm verify` against local Docker.
+The three PostgreSQL concurrency tests are skipped in SQLite mode. Once this repository is published, check GitHub Actions for its PostgreSQL run. You can also run `docker compose --profile test run --build --rm verify` against local Docker.
 
 ## Optional: PostgreSQL with Docker Compose
 
@@ -133,3 +133,7 @@ This preserves the database volume. Back up before deleting volumes or changing 
 ## Explain this milestone in an interview
 
 “An email becomes one case with a unique source identifier. Every customer question is stored separately. A transaction commits the case, questions, and audit event together. API role checks enforce read-only auditor access, and a database unique constraint prevents duplicate intake even when two requests race.”
+
+## Milestone 3
+
+Follow [the service deadline and NFCR walkthrough](MILESTONE_3.md) after verifying the local setup. Automatic deadline checks require the separate worker process. Existing closed cases keep their history without backdated service clocks.

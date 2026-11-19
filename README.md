@@ -1,7 +1,7 @@
 # ResolveDesk
 ### Banking Email Resolution & TAT Workbench
 
-**Build status: Milestone 2 — case ownership and versioned resolution workflow.**
+**Build status: Milestone 3 — business-calendar TAT and NFCR follow-up.**
 
 This is a synthetic-data portfolio application. It is not an HDFC integration. The full approved design below describes our roadmap, including features not implemented yet.
 
@@ -30,9 +30,19 @@ This is a synthetic-data portfolio application. It is not an HDFC integration. T
 
 See [the milestone-2 walkthrough](docs/MILESTONE_2.md) for upgrade instructions and the synthetic service scenario.
 
+### Implemented in milestone 3
+
+- Versioned office calendars, holidays, category-specific targets, and persisted service-cycle snapshots.
+- Separate first-response, initial same-day-action, and resolution deadlines; explicit policy-controlled customer-wait pauses.
+- Owned NFCR tasks with business units, next actions, reviewed rescheduling, completion evidence, and resolution safeguards.
+- APScheduler worker, deduplicated internal warnings/escalations, missed-breach recovery, and manager acknowledgement.
+- Deadline and policy tabs, plus a migration that does not backdate legacy case clocks.
+
+See [the milestone-3 upgrade and walkthrough](docs/MILESTONE_3.md). Use synthetic data only. The default calendar and targets are illustrative, not HDFC policies.
+
 ### Not implemented yet
 
-Individual user authentication/SSO, response delivery, NFCR follow-up tasks, business-calendar TAT, reminders, automated policy evidence verification, and operational dashboards are later milestones. Do not present these as completed resume achievements.
+Individual user authentication/SSO, actual response delivery, automated policy evidence verification, service KPI dashboards, and production hosting/operations remain later milestones. Do not present these as completed resume achievements.
 
 ---
 

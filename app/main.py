@@ -1,4 +1,4 @@
-"""ResolveDesk milestone 2: authenticated, persistent synthetic case intake."""
+"""ResolveDesk milestone 3: authenticated, persistent synthetic case intake."""
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.exceptions import RequestValidationError
@@ -24,6 +24,7 @@ from app.schemas import (
     ResolveRequest,
     Transition,
 )
+from app.service import mark_action, on_assignment, on_transition, start_clock, stop_clock
 from app.workflow import (
     ACTIVE_STATES,
     TRANSITIONS,
@@ -35,7 +36,7 @@ from app.workflow import (
     resolve,
 )
 
-app = FastAPI(title="ResolveDesk", version="0.2.0", description="Synthetic banking service cases")
+app = FastAPI(title="ResolveDesk", version="0.3.0", description="Synthetic banking service cases")
 
 
 @app.exception_handler(RequestValidationError)
@@ -57,7 +58,7 @@ async def database_error(_request, _exc):
 
 @app.get("/health/live")
 def live():
-    return {"status": "ok", "version": "0.2.0"}
+    return {"status": "ok", "version": "0.3.0"}
 
 
 @app.get("/health/ready")
@@ -77,6 +78,7 @@ def create_case(
     session.add(case)
     try:
         session.flush()
+        start_clock(case, session, case.created_at)
         session.add(AuditEvent(case_id=case.id, actor=f"demo-{role}", action="case.created"))
         session.commit()
     except IntegrityError:
@@ -136,6 +138,7 @@ def assign(
         raise HTTPException(409, "Case already has that owner")
     old = case.owner
     case.owner = payload.owner
+    on_assignment(case, utc_now())
     if case.status == "new":
         case.status = "assigned"
     return commit_change(
@@ -155,8 +158,15 @@ def transition(
         raise HTTPException(409, "This status transition is not allowed")
     if case.status == "pending_review" and role != "manager":
         raise HTTPException(403, "A manager must return this case for further work")
+    if payload.target == "awaiting_business_unit" and not any(
+        t.completed_at is None for t in case.followups
+    ):
+        raise HTTPException(
+            409, "Create an owned NFCR follow-up task before waiting for a business unit"
+        )
     previous = case.status
     case.status = payload.target
+    on_transition(case, previous, utc_now())
     if payload.target == "closed":
         case.closure_reason = payload.reason
     return commit_change(
@@ -182,6 +192,7 @@ def update_query(
     if query is None:
         raise HTTPException(404, "Question not found in this case")
     before = query_snapshot(query)
+    mark_action(case, utc_now())
     for name in ("disposition", "answer", "evidence_reference", "dependency"):
         setattr(query, name, getattr(payload, name) or None)
     return commit_change(
@@ -244,6 +255,7 @@ def resolve_case(
 ):
     case = editable_case(case_id, payload.expected_version, role, session)
     resolve(case, payload.resolution_note, role)
+    stop_clock(case, case.resolved_at)
     return commit_change(case, role, "case.resolved", {"note": payload.resolution_note}, session)
 
 
@@ -264,6 +276,7 @@ def reopen(
         "queries": [query_snapshot(q) for q in case.queries],
     }
     case.status = "in_progress"
+    start_clock(case, session, utc_now())
     case.resolution_note = None
     case.resolved_at = None
     case.closure_reason = None
@@ -278,3 +291,8 @@ def reopen(
 @app.get("/session")
 def session_role(role: str = Depends(get_role)):
     return {"role": role, "actor": f"demo-{role}"}
+
+
+from app.service_api import router as service_router  # noqa: E402
+
+app.include_router(service_router)

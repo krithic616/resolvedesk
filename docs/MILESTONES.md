@@ -12,7 +12,7 @@ Implemented: demo assignment, allowed state transitions, per-query answers and d
 
 ## 3 — TAT and NFCR
 
-Versioned business-calendar policies, response and resolution clocks, pause rules, persisted follow-up tasks, single scheduled worker, and escalation processing. Verify holidays, cutoffs, timezones, and worker restarts.
+Implemented: versioned business calendars and category targets, first-response/action/resolution clocks, permitted customer-wait pauses, persisted NFCR tasks and reviews, scheduled scanning, deduplicated internal reminders/escalations, and manager acknowledgement. Calendar boundaries, holidays, downtime recovery, and overlapping scans are tested. See `MILESTONE_3.md`.
 
 ## 4 — Response simulation and reporting
 

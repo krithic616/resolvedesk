@@ -55,4 +55,7 @@ def test_upgrade_preserves_existing_case(tmp_path):
         capture_output=True,
         text=True,
     )
+    with engine.connect() as conn:
+        assert conn.execute(text("SELECT COUNT(*) FROM service_clocks")).scalar() == 0
+        assert conn.execute(text("SELECT COUNT(*) FROM deadline_alerts")).scalar() == 0
     engine.dispose()
