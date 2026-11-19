@@ -1,7 +1,7 @@
 # ResolveDesk
 ### Banking Email Resolution & TAT Workbench
 
-**Build status: Milestone 1 — authenticated intake and case queue.**
+**Build status: Milestone 2 — case ownership and versioned resolution workflow.**
 
 This is a synthetic-data portfolio application. It is not an HDFC integration. The full approved design below describes our roadmap, including features not implemented yet.
 
@@ -19,9 +19,20 @@ This is a synthetic-data portfolio application. It is not an HDFC integration. T
 - Streamlit intake and browsing interface.
 - Alembic migrations, local SQLite mode, and PostgreSQL deployment configuration.
 
+### Implemented in milestone 2
+
+- Demo owner assignment, explicit state transitions, and API-enforced manager review.
+- Per-question answers with evidence references or dependency notes.
+- Customer commitments with timezone-aware due dates and completion evidence.
+- Resolution checks, closure reasons, and reopening that resets the checklist while preserving prior answers in audit history.
+- Optimistic concurrency with record versions and atomic audit entries for every workflow change.
+- A migration tested against existing milestone-1 case data.
+
+See [the milestone-2 walkthrough](docs/MILESTONE_2.md) for upgrade instructions and the synthetic service scenario.
+
 ### Not implemented yet
 
-Individual user authentication/SSO, assignment, response delivery, resolution/closure, NFCR tasks, business-calendar TAT, reminders, concurrency-safe case editing, and operational dashboards are later milestones. Do not present these as completed resume achievements.
+Individual user authentication/SSO, response delivery, NFCR follow-up tasks, business-calendar TAT, reminders, automated policy evidence verification, and operational dashboards are later milestones. Do not present these as completed resume achievements.
 
 ---
 

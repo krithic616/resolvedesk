@@ -8,7 +8,7 @@ Verification results are recorded in `docs/VERIFICATION.md`. Resume metrics rema
 
 ## 2 — Ownership and resolution
 
-Assignment, allowed state transitions, per-query answers and dependencies, manager review, commitments, reopen handling, and optimistic concurrency. Build and test the first complete service scenario.
+Implemented: demo assignment, allowed state transitions, per-query answers and dependency notes, manager review, commitments, resolution/closure, reopening, and optimistic concurrency. See `MILESTONE_2.md`. Task-based NFCR follow-up and delivery simulation remain later milestones.
 
 ## 3 — TAT and NFCR
 

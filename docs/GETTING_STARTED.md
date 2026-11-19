@@ -1,4 +1,4 @@
-# VS Code walkthrough — milestone 1
+# VS Code walkthrough — local setup
 
 ## 1. Get the code
 
@@ -75,7 +75,7 @@ In **Create case**, enter:
 
 Create the case and refresh the queue. Open it and inspect the two questions and `case.created` audit event. Submit the same message ID again: the API returns 409 and keeps one case. Switch to the auditor key: you can read the case, but creating a case returns 403.
 
-This milestone records the request. It does not approve waivers, send replies, or resolve cases yet.
+After verifying intake, follow [the milestone-2 walkthrough](MILESTONE_2.md) to assign, answer, and resolve the synthetic case. No live waiver or email delivery is performed.
 
 ## 7. Verify your setup
 
@@ -86,7 +86,7 @@ python -m ruff format --check .
 python -m alembic check
 ```
 
-The PostgreSQL concurrency test is skipped in SQLite mode. Once this repository is published, check GitHub Actions for its PostgreSQL run. You can also run `docker compose --profile test run --build --rm verify` against local Docker.
+The two PostgreSQL concurrency tests are skipped in SQLite mode. Once this repository is published, check GitHub Actions for its PostgreSQL run. You can also run `docker compose --profile test run --build --rm verify` against local Docker.
 
 ## Optional: PostgreSQL with Docker Compose
 

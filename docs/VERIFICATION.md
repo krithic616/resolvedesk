@@ -24,3 +24,17 @@ Verified on 19 November 2026 with Python 3.12.14. This records development evide
 - GitHub repository creation was initially denied by the connected app (`Resource not accessible by integration (createRepository)`). The user created the repository, and milestone commit `6d91d86` was pushed to `main`.
 - [GitHub Actions run 44482091040](https://github.com/krithic616/resolvedesk/actions/runs/44482091040) passed: lint, format, PostgreSQL migrations/schema comparison, all **21 tests**, and compilation.
 - The user-created repository is public; generated local keys, database files, and the virtual environment are ignored. All tracked files were checked for the actual generated local credentials; none were present.
+
+# Milestone 2 verification
+
+Verified locally on 19 November 2026:
+
+- SQLite suite: **40 passed, 2 skipped** (both skipped tests require PostgreSQL).
+- Full UI answer-and-resolve scenario passed using Streamlit AppTest against the API.
+- Existing case preservation passed through a milestone-1-to-milestone-2 migration on a disposable SQLite database.
+- Ownership, manager review, unanswered questions, dependency states, outstanding commitments, stale versions, cross-case IDs, and auditor write denial are covered.
+- Injected workflow audit failure rolled back both the question change and parent case version.
+- A due time entered with the India offset was returned as its correct UTC equivalent.
+- Ruff lint/format, application compilation, and Alembic schema comparison passed.
+
+PostgreSQL races are included in CI: duplicate intake and simultaneous workflow edits. Remote results will be recorded after the run completes. Full multi-container startup remains unverified due to the earlier cloud disk-space limitation. No banking performance metrics or real customer outcomes are claimed.

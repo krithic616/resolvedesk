@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class Category(StrEnum):
@@ -41,6 +41,10 @@ class OrmView(BaseModel):
 class QueryView(OrmView):
     id: int
     question: str
+    disposition: str
+    answer: str | None
+    evidence_reference: str | None
+    dependency: str | None
 
 
 class CaseSummary(OrmView):
@@ -49,6 +53,8 @@ class CaseSummary(OrmView):
     category: str
     status: str
     created_at: datetime
+    owner: str | None
+    version: int
 
     @field_validator("created_at")
     @classmethod
@@ -62,6 +68,15 @@ class CaseView(CaseSummary):
     customer_reference: str
     body: str
     queries: list[QueryView]
+    commitments: list["CommitmentView"]
+    resolution_note: str | None
+    closure_reason: str | None
+    resolved_at: datetime | None
+
+    @field_validator("resolved_at")
+    @classmethod
+    def optional_utc(cls, value):
+        return CaseSummary.ensure_utc(value) if value else value
 
 
 class CasePage(BaseModel):
@@ -71,10 +86,85 @@ class CasePage(BaseModel):
     offset: int
 
 
+class CommitmentView(OrmView):
+    id: int
+    description: str
+    due_at: datetime
+    completed_at: datetime | None
+    completion_note: str | None
+
+    _due_utc = field_validator("due_at")(CaseSummary.ensure_utc.__func__)
+
+    @field_validator("completed_at")
+    @classmethod
+    def optional_utc(cls, value):
+        return CaseSummary.ensure_utc(value) if value else value
+
+
 class AuditView(OrmView):
     id: int
     actor: str
     action: str
+    details: dict
     created_at: datetime
 
     _utc = field_validator("created_at")(CaseSummary.ensure_utc.__func__)
+
+
+class VersionedWrite(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    expected_version: int = Field(ge=1)
+
+
+class Assignment(VersionedWrite):
+    owner: str = Field(pattern=r"^demo-(agent|manager)$")
+
+
+class Transition(VersionedWrite):
+    target: str = Field(
+        pattern=r"^(in_progress|awaiting_business_unit|awaiting_customer|pending_review|closed)$"
+    )
+    reason: str = Field(min_length=1, max_length=2000)
+
+
+class QueryUpdate(VersionedWrite):
+    disposition: str = Field(pattern=r"^(open|answered|waiting)$")
+    answer: str = Field(default="", max_length=5000)
+    evidence_reference: str = Field(default="", max_length=500)
+    dependency: str = Field(default="", max_length=1000)
+
+    @model_validator(mode="after")
+    def check_disposition(self):
+        if self.disposition == "answered":
+            if not self.answer or not self.evidence_reference or self.dependency:
+                raise ValueError(
+                    "An answered query requires an answer and evidence, with no dependency"
+                )
+        elif self.disposition == "waiting":
+            if not self.dependency or self.answer or self.evidence_reference:
+                raise ValueError("A waiting query requires only a dependency note")
+        elif self.answer or self.evidence_reference or self.dependency:
+            raise ValueError("An open query must not contain answer or dependency fields")
+        return self
+
+
+class ResolveRequest(VersionedWrite):
+    resolution_note: str = Field(min_length=1, max_length=5000)
+
+
+class ReopenRequest(VersionedWrite):
+    reason: str = Field(min_length=1, max_length=2000)
+
+
+class CommitmentCreate(VersionedWrite):
+    description: str = Field(min_length=1, max_length=1000)
+    due_at: AwareDatetime
+
+    @field_validator("due_at")
+    @classmethod
+    def normalize_due_at(cls, value):
+        return value.astimezone(timezone.utc)
+
+
+class CommitmentComplete(VersionedWrite):
+    completion_note: str = Field(min_length=1, max_length=1000)

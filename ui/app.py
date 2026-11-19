@@ -5,9 +5,11 @@ import os
 import httpx
 import streamlit as st
 
+from ui.workflow_ui import render_workflow
+
 st.set_page_config(page_title="ResolveDesk", page_icon="✉", layout="wide")
 st.title("ResolveDesk")
-st.caption("Banking email resolution workbench • Synthetic data only • Milestone 1")
+st.caption("Banking email resolution workbench • Synthetic data only • Milestone 2")
 api_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 key = st.sidebar.text_input("Demo API key", type="password")
 st.sidebar.caption(
@@ -41,6 +43,12 @@ def request(method, path, **kwargs):
 if not key:
     st.info("Enter your demo API key in the sidebar to begin.")
     st.stop()
+identity = request("GET", "/session")
+if not identity:
+    st.stop()
+notice = st.session_state.pop("workflow_notice", None)
+if notice:
+    st.success(notice)
 queue, intake = st.tabs(["Case queue", "Create case"])
 with intake:
     with st.form("intake", clear_on_submit=False):
@@ -88,6 +96,7 @@ with queue:
                 st.markdown("**Query checklist**")
                 for query in case["queries"]:
                     st.write(f"• {query['question']}")
+                render_workflow(case, request, identity["role"])
                 st.markdown("**Audit history**")
                 events = request("GET", f"/cases/{selected}/audit")
                 if events is not None:
