@@ -51,4 +51,4 @@ Local verification on 19 November 2026:
 - The migration preserves an existing milestone-1 case through all upgrades and leaves legacy service clocks and alerts empty.
 - Ruff lint/format, compilation, Alembic schema comparison, and the real `python -m app.worker --once` command passed. The one-shot command returned zero new alerts on the empty local cloud dataset.
 
-Remote PostgreSQL results will be recorded after CI. Full multi-container startup remains unverified because of the earlier cloud disk-space limitation. No production latency, throughput, or banking outcome metric is claimed.
+[GitHub Actions run 44519817379](https://github.com/krithic616/resolvedesk/actions/runs/44519817379) passed on PostgreSQL: **90 tests passed**, including concurrent scanners, duplicate intake, and competing workflow edits. Remote lint, format, migrations/schema comparison, and compilation also passed. Full multi-container startup remains unverified because of the earlier cloud disk-space limitation. No production latency, throughput, or banking outcome metric is claimed.
