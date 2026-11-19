@@ -37,4 +37,4 @@ Verified locally on 19 November 2026:
 - A due time entered with the India offset was returned as its correct UTC equivalent.
 - Ruff lint/format, application compilation, and Alembic schema comparison passed.
 
-PostgreSQL races are included in CI: duplicate intake and simultaneous workflow edits. Remote results will be recorded after the run completes. Full multi-container startup remains unverified due to the earlier cloud disk-space limitation. No banking performance metrics or real customer outcomes are claimed.
+[GitHub Actions run 44508785024](https://github.com/krithic616/resolvedesk/actions/runs/44508785024) passed on PostgreSQL: **42 tests passed**, including simultaneous duplicate intake and competing workflow edits. Remote lint, format, migrations/schema comparison, and compilation also passed. Full multi-container startup remains unverified due to the earlier cloud disk-space limitation. No banking performance metrics or real customer outcomes are claimed.
