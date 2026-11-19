@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: resolvedesk
+      POSTGRES_USER: resolvedesk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resolvedesk"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  migrate:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://resolvedesk:${POSTGRES_PASSWORD}@db:5432/resolvedesk
+    command: alembic upgrade head
+    depends_on:
+      db:
+        condition: service_healthy
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://resolvedesk:${POSTGRES_PASSWORD}@db:5432/resolvedesk
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  ui:
+    build: .
+    environment:
+      API_BASE_URL: http://api:8000
+    command: streamlit run ui/app.py --server.address=0.0.0.0
+    ports: ["127.0.0.1:8501:8501"]
+    depends_on: [api]
+  verify:
+    profiles: ["test"]
+    build:
+      context: .
+      target: test
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://resolvedesk:${POSTGRES_PASSWORD}@db:5432/resolvedesk
+    command: sh -c "alembic upgrade head && alembic check && pytest -q"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  postgres_data:
